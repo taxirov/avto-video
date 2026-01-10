@@ -15,10 +15,8 @@ const generateAudioTextHandler = async (req, res) => {
     const latinText = await convertToLatin(text);
     const result = await saveAudioTextFile({ productId, text: latinText });
     return res.status(200).json({
-      ok: true,
       productId,
-      fileUrl: result.fileUrl,
-      filePath: result.filePath,
+      fileUrl: "https://auto-video.webpack.uz" + result.fileUrl,
       text: result.text,
     });
   } catch (err) {
