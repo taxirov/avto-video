@@ -4,6 +4,6 @@ const { generateAudioTextHandler, getAudioTextHandler } = require('../controller
 const router = express.Router();
 
 router.post('/generate/audio/text', generateAudioTextHandler);
-router.get('/generate/audio/text/:id', getAudioTextHandler);
+router.get('/audio/text/:id', getAudioTextHandler);
 
 module.exports = router;

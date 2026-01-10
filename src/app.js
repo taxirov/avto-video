@@ -8,7 +8,7 @@ const createApp = () => {
   app.use(express.json({ limit: '2mb' }));
   app.use('/files', express.static(path.join(process.cwd(), 'storage')));
 
-  app.use(audioTextRoutes);
+  app.use('/api', audioTextRoutes);
 
   app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint topilmadi' });
