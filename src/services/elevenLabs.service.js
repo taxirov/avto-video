@@ -17,6 +17,7 @@ const generateSpeech = async (text) => {
           'xi-api-key': ELEVENLABS_API_KEY,
         },
         responseType: 'arraybuffer',
+        maxRedirects: 0,
         timeout: 30000,
       }
     );
@@ -25,9 +26,11 @@ const generateSpeech = async (text) => {
   } catch (err) {
     const status = err?.response?.status;
     const raw = err?.response?.data;
+    const location = err?.response?.headers?.location;
     const message = Buffer.isBuffer(raw) ? raw.toString('utf8') : String(raw || err?.message || '');
     const details = message ? `: ${message}` : '';
-    throw new Error(`ElevenLabs xatosi (${status || 'unknown'})${details}`);
+    const redirectHint = location ? ` Redirect: ${location}` : '';
+    throw new Error(`ElevenLabs xatosi (${status || 'unknown'})${details}${redirectHint}`);
   }
 };
 
