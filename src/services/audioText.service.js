@@ -24,4 +24,18 @@ const saveAudioTextFile = async ({ productId, text }) => {
   };
 };
 
-module.exports = { saveAudioTextFile };
+const readAudioTextFile = async ({ productId }) => {
+  const safeId = String(productId).trim();
+  const fileName = `${safeId}_audioText.txt`;
+  const filePath = path.join(AUDIO_TEXT_DIR, fileName);
+  const text = await fs.readFile(filePath, 'utf8');
+
+  return {
+    fileName,
+    filePath,
+    fileUrl: `/files/audioText/${fileName}`,
+    text,
+  };
+};
+
+module.exports = { saveAudioTextFile, readAudioTextFile };
