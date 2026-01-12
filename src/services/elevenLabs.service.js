@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const ELEVENLABS_API_URL =
-  process.env.ELEVENLABS_API_URL || 'https://api.elevenlabs.io/v1/text-to-speech/1bPXrtOTOTW6dae9i0K9';
+  process.env.ELEVENLABS_API_URL || 'https://api.elevenlabs.io/v1/text-to-speech/NOpBlnGInO9m6vDvFkFC';
 const ELEVENLABS_API_KEY =
   process.env.ELEVENLABS_API_KEY || 'sk_eb736eb54bb49683c91fead56ae08c7797cecbe9ed754c92';
 
@@ -9,7 +9,10 @@ const generateSpeech = async (text) => {
   try {
     const response = await axios.post(
       ELEVENLABS_API_URL,
-      { text: String(text || '') },
+      {
+        text: String(text || ''),
+        model_id: "eleven_v3"
+      },
       {
         headers: {
           Accept: 'audio/mpeg',

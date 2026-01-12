@@ -6,6 +6,87 @@ const normalizeValue = (value, fallback = "ma'lumot ko'rsatilmagan") => {
   return str ? str : fallback;
 };
 
+const digitWords = ['nol', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"];
+const tensWords = ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"];
+
+const chunkToWords = (num) => {
+  let n = num;
+  const parts = [];
+  if (n >= 100) {
+    const hundreds = Math.floor(n / 100);
+    parts.push(`${digitWords[hundreds]} yuz`);
+    n %= 100;
+  }
+  if (n >= 10) {
+    const tens = Math.floor(n / 10);
+    parts.push(tensWords[tens]);
+    n %= 10;
+  }
+  if (n > 0) {
+    parts.push(digitWords[n]);
+  }
+  return parts.join(' ');
+};
+
+const numberToWords = (num) => {
+  if (!Number.isFinite(num)) return '';
+  if (num === 0) return digitWords[0];
+  const parts = [];
+  const units = [
+    { value: 1_000_000_000, label: 'milliard' },
+    { value: 1_000_000, label: 'million' },
+    { value: 1_000, label: 'ming' },
+  ];
+
+  let n = Math.floor(num);
+  for (const unit of units) {
+    if (n >= unit.value) {
+      const count = Math.floor(n / unit.value);
+      parts.push(`${chunkToWords(count)} ${unit.label}`);
+      n %= unit.value;
+    }
+  }
+  if (n > 0) {
+    parts.push(chunkToWords(n));
+  }
+  return parts.join(' ');
+};
+
+const replaceNumbersWithWords = (text) =>
+  String(text || '').replace(/\d[\d\s-]*\d|\d/g, (match) => {
+    const digits = match.replace(/[^\d]/g, '');
+    if (!digits) return match;
+
+    if (match.includes(' ') || match.includes('-')) {
+      return match
+        .split(/(\s+|-)/)
+        .map((part) => {
+          if (!/\d/.test(part)) return part;
+          const groupDigits = part.replace(/[^\d]/g, '');
+          if (!groupDigits) return part;
+          if (groupDigits.length > 12) {
+            return groupDigits
+              .split('')
+              .map((d) => digitWords[Number(d)])
+              .join(' ');
+          }
+          const words = numberToWords(Number(groupDigits));
+          return words || part;
+        })
+        .join('');
+    }
+
+    if (digits.length > 12) {
+      return digits
+        .split('')
+        .map((d) => digitWords[Number(d)])
+        .join(' ');
+    }
+    const num = Number(digits);
+    const words = numberToWords(num);
+    return words || match;
+  });
+
 const formatRounded = (value, fallback = "ma'lumot ko'rsatilmagan") => {
   if (value === null || value === undefined || value === '') return fallback;
   const num = Number(value);
@@ -120,9 +201,9 @@ const buildAudioTemplate = (item) => {
       const v = String(line || '');
       return !/^Umumiy yer maydoni\s+/i.test(v) && !/^Qurilish osti maydoni\s+/i.test(v);
     });
-    return filtered.join(' ');
+    return replaceNumbersWithWords(filtered.join(' '));
   }
-  return sentences.join(' ');
+  return replaceNumbersWithWords(sentences.join(' '));
 };
 
 module.exports = { buildAudioTemplate };
