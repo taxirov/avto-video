@@ -133,10 +133,10 @@ const getVariationLabel = (variations, code) => {
 const buildAudioTemplate = (item) => {
   const rawRegion = item?.region || item?.productOrder?.region || item?.productRegion || null;
   const isMicroRegion = rawRegion?.regionType === 'MICRO_REGION';
-  const parentName = isMicroRegion
+  const provinceName = isMicroRegion
     ? rawRegion?.parent?.parent?.name || rawRegion?.parent?.name || ''
     : rawRegion?.parent?.name || '';
-  const regionName = isMicroRegion
+  const districtName = isMicroRegion
     ? rawRegion?.parent?.name || ''
     : rawRegion?.name || item?.district || '';
   const mfyName = item?.mfy?.name || item?.productMfy?.name || (isMicroRegion ? rawRegion?.name : '');
@@ -179,9 +179,11 @@ const buildAudioTemplate = (item) => {
     return '';
   })();
 
+  const locationParts = [provinceName, districtName].filter(Boolean).filter((v, i, a) => i === 0 || v !== a[i - 1]);
+  const locationPrefix = normalizeSpaces(locationParts.join(' '));
   const sentences = [
     normalizeSpaces(
-      `${parentName || ''} ${regionName || ''} ${mfyWord ? `${mfyWord} mahallasida` : ''} joylashgan ${categoryText} taklif qilamiz.`
+      `${locationPrefix || ''} ${mfyWord ? `${mfyWord} mahallasida` : ''} joylashgan ${categoryText} taklif qilamiz.`
     ),
     `Umumiy yer maydoni ${areaAll} metr kvadrat.`,
     `Qurilish osti maydoni ${buildingArea} metr kvadrat.`,
@@ -209,10 +211,10 @@ const buildAudioTemplate = (item) => {
 const buildAudioTemplateDigits = (item) => {
   const rawRegion = item?.region || item?.productOrder?.region || item?.productRegion || null;
   const isMicroRegion = rawRegion?.regionType === 'MICRO_REGION';
-  const parentName = isMicroRegion
+  const provinceName = isMicroRegion
     ? rawRegion?.parent?.parent?.name || rawRegion?.parent?.name || ''
     : rawRegion?.parent?.name || '';
-  const regionName = isMicroRegion
+  const districtName = isMicroRegion
     ? rawRegion?.parent?.name || ''
     : rawRegion?.name || item?.district || '';
   const mfyName = item?.mfy?.name || item?.productMfy?.name || (isMicroRegion ? rawRegion?.name : '');
@@ -255,9 +257,11 @@ const buildAudioTemplateDigits = (item) => {
     return '';
   })();
 
+  const locationParts = [provinceName, districtName].filter(Boolean).filter((v, i, a) => i === 0 || v !== a[i - 1]);
+  const locationPrefix = normalizeSpaces(locationParts.join(' '));
   const sentences = [
     normalizeSpaces(
-      `${parentName || ''} ${regionName || ''} ${mfyWord ? `${mfyWord} mahallasida` : ''} joylashgan ${categoryText} taklif qilamiz.`
+      `${locationPrefix || ''} ${mfyWord ? `${mfyWord} mahallasida` : ''} joylashgan ${categoryText} taklif qilamiz.`
     ),
     `Umumiy yer maydoni ${areaAll} metr kvadrat.`,
     `Qurilish osti maydoni ${buildingArea} metr kvadrat.`,
