@@ -29,10 +29,8 @@ const generateAudioHandler = async (req, res) => {
     const audioBuffer = await generateSpeech(text);
     const result = await saveAudioFile({ fileId, buffer: audioBuffer });
     return res.status(200).json({
-      ok: true,
       id: String(fileId),
-      fileUrl: result.fileUrl,
-      filePath: result.filePath,
+      fileUrl: "https://auto-video.webpack.uz" + result.fileUrl
     });
   } catch (err) {
     return res.status(500).json({ error: err?.message || 'Server xatosi' });

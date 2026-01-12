@@ -190,7 +190,7 @@ const buildAudioTemplate = (item) => {
     normalizeSpaces(floorsSentence),
     communications ? `${communications} ta'minoti mavjud.` : '',
     'Joylashuvi qulay.',
-    "Batafsil malumot uchun 55 517 22 20 raqamiga bog'laning!",
+    "Batafsil malumot uchun ellik besh besh yuz o'n yetti yigirma ikki yigirma raqamiga bog'laning!",
   ];
 
   const categoryId = item?.category?.id || item?.categoryId;
