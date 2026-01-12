@@ -30,7 +30,7 @@ const generateAudioHandler = async (req, res) => {
     const result = await saveAudioFile({ fileId, buffer: audioBuffer });
     return res.status(200).json({
       id: String(fileId),
-      fileUrl: "https://auto-video2.webpack.uz" + result.fileUrl
+      fileUrl: "https://avto-video2.webpack.uz" + result.fileUrl
     });
   } catch (err) {
     return res.status(500).json({ error: err?.message || 'Server xatosi' });
@@ -48,7 +48,7 @@ const getAudioHandler = async (req, res) => {
     const result = await readAudioFile({ fileId });
     return res.status(200).json({
       id: String(fileId),
-      fileUrl: "https://auto-video2.webpack.uz" + result.fileUrl
+      fileUrl: "https://avto-video2.webpack.uz" + result.fileUrl
     });
   } catch (err) {
     if (err?.code === 'ENOENT') {
