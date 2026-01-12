@@ -1,17 +1,28 @@
+const axios = require('axios');
 const { buildAudioTemplate } = require('../utils/audioTemplate');
 const { saveAudioTextFile, readAudioTextFile } = require('../services/audioText.service');
 const { convertToLatin } = require('../services/matnUz.service');
 
 const generateAudioTextHandler = async (req, res) => {
   const product = req.body.product || req.body;
-  const productId = product?.id;
+  const productId = product?.id || req.body?.productId || req.body?.id;
 
   if (!product || !productId) {
     return res.status(400).json({ error: 'product.id talab qilinadi' });
   }
 
   try {
-    const text = buildAudioTemplate(product);
+    let productData = product;
+    if (!product?.name || !product?.category || !product?.region) {
+      try {
+        const resp = await axios.get(`https://api.uy-joy.uz/api/public/product/${productId}`);
+        if (resp?.data) productData = resp.data;
+      } catch (err) {
+        return res.status(502).json({ error: "ID bo'yicha ma'lumot olishda xato" });
+      }
+    }
+
+    const text = buildAudioTemplate(productData);
     const latinText = await convertToLatin(text);
     const result = await saveAudioTextFile({ productId, text: latinText });
     return res.status(200).json({

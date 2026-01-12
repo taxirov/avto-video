@@ -1,10 +1,11 @@
+const axios = require('axios');
 const { saveAudioCaptionFile } = require('../services/audioCaption.service');
 const { buildAudioTemplateDigits } = require('../utils/audioTemplate');
 
 const generateAudioCaptionHandler = async (req, res) => {
   const payload = req?.body || {};
   const product = payload?.product || payload;
-  const productId = product?.id || payload?.productId;
+  const productId = product?.id || payload?.productId || payload?.id;
   const durationSeconds = Number(payload?.durationSeconds || payload?.duration || payload?.audioDuration);
   const text = typeof payload?.text === 'string' ? payload.text : '';
 
@@ -16,7 +17,17 @@ const generateAudioCaptionHandler = async (req, res) => {
   }
 
   try {
-    const baseText = text.trim() ? text.trim() : buildAudioTemplateDigits(product || {});
+    let productData = product;
+    if (!product?.name || !product?.category || !product?.region) {
+      try {
+        const resp = await axios.get(`https://api.uy-joy.uz/api/public/product/${productId}`);
+        if (resp?.data) productData = resp.data;
+      } catch (err) {
+        return res.status(502).json({ error: "ID bo'yicha ma'lumot olishda xato" });
+      }
+    }
+
+    const baseText = text.trim() ? text.trim() : buildAudioTemplateDigits(productData || {});
     if (!baseText) {
       return res.status(400).json({ error: 'Matn topilmadi' });
     }
