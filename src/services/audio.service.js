@@ -23,4 +23,16 @@ const saveAudioFile = async ({ fileId, buffer }) => {
   };
 };
 
-module.exports = { saveAudioFile };
+const readAudioFile = async ({ fileId }) => {
+  const safeId = String(fileId).trim();
+  const fileName = `${safeId}_audio.mp3`;
+  const filePath = path.join(AUDIO_DIR, fileName);
+  await fs.access(filePath);
+  return {
+    fileName,
+    filePath,
+    fileUrl: `/files/audio/${fileName}`,
+  };
+};
+
+module.exports = { saveAudioFile, readAudioFile };

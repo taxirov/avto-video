@@ -1,5 +1,5 @@
 const { readAudioTextFile } = require('../services/audioText.service');
-const { saveAudioFile } = require('../services/audio.service');
+const { saveAudioFile, readAudioFile } = require('../services/audio.service');
 const { generateSpeech } = require('../services/elevenLabs.service');
 
 const generateAudioHandler = async (req, res) => {
@@ -30,11 +30,32 @@ const generateAudioHandler = async (req, res) => {
     const result = await saveAudioFile({ fileId, buffer: audioBuffer });
     return res.status(200).json({
       id: String(fileId),
-      fileUrl: "https://auto-video.webpack.uz" + result.fileUrl
+      fileUrl: "https://auto-video2.webpack.uz" + result.fileUrl
     });
   } catch (err) {
     return res.status(500).json({ error: err?.message || 'Server xatosi' });
   }
 };
 
-module.exports = { generateAudioHandler };
+const getAudioHandler = async (req, res) => {
+  const fileId = req?.params?.id;
+
+  if (!fileId) {
+    return res.status(400).json({ error: 'id talab qilinadi' });
+  }
+
+  try {
+    const result = await readAudioFile({ fileId });
+    return res.status(200).json({
+      id: String(fileId),
+      fileUrl: "https://auto-video2.webpack.uz" + result.fileUrl
+    });
+  } catch (err) {
+    if (err?.code === 'ENOENT') {
+      return res.status(404).json({ error: 'Audio topilmadi' });
+    }
+    return res.status(500).json({ error: err?.message || 'Server xatosi' });
+  }
+};
+
+module.exports = { generateAudioHandler, getAudioHandler };

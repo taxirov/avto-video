@@ -16,7 +16,7 @@ const generateAudioTextHandler = async (req, res) => {
     const result = await saveAudioTextFile({ productId, text: latinText });
     return res.status(200).json({
       productId,
-      fileUrl: "https://auto-video.webpack.uz" + result.fileUrl,
+      fileUrl: "https://auto-video2.webpack.uz" + result.fileUrl,
       text: result.text,
     });
   } catch (err) {
@@ -35,7 +35,7 @@ const getAudioTextHandler = async (req, res) => {
     const result = await readAudioTextFile({ productId });
     return res.status(200).json({
       productId,
-      fileUrl: "https://auto-video.webpack.uz" +  result.fileUrl,
+      fileUrl: "https://auto-video2.webpack.uz" +  result.fileUrl,
       text: result.text,
     });
   } catch (err) {
