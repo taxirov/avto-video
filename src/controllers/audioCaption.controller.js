@@ -1,6 +1,7 @@
 const axios = require('axios');
-const { saveAudioCaptionFile } = require('../services/audioCaption.service');
+const { saveAudioCaptionFile, readAudioCaptionFile } = require('../services/audioCaption.service');
 const { buildAudioTemplateDigits } = require('../utils/audioTemplate');
+const { convertToLatin } = require('../services/matnUz.service');
 
 const generateAudioCaptionHandler = async (req, res) => {
   const payload = req?.body || {};
@@ -32,7 +33,14 @@ const generateAudioCaptionHandler = async (req, res) => {
       return res.status(400).json({ error: 'Matn topilmadi' });
     }
 
-    const srt = buildSrtFromText(baseText, durationSeconds);
+    let latinText = baseText;
+    try {
+      latinText = await convertToLatin(baseText);
+    } catch (err) {
+      latinText = baseText;
+    }
+
+    const srt = buildSrtFromText(latinText, durationSeconds);
     const result = await saveAudioCaptionFile({ productId, srt });
     return res.status(200).json({
       productId,
@@ -91,4 +99,26 @@ function pad3(value) {
   return String(value).padStart(3, '0');
 }
 
-module.exports = { generateAudioCaptionHandler };
+const getAudioCaptionHandler = async (req, res) => {
+  const productId = req?.params?.id;
+
+  if (!productId) {
+    return res.status(400).json({ error: 'id talab qilinadi' });
+  }
+
+  try {
+    const result = await readAudioCaptionFile({ productId });
+    return res.status(200).json({
+      productId,
+      fileUrl: "https://avto-video2.webpack.uz" + result.fileUrl,
+      srt: result.srt,
+    });
+  } catch (err) {
+    if (err?.code === 'ENOENT') {
+      return res.status(404).json({ error: 'Sarlavha topilmadi' });
+    }
+    return res.status(500).json({ error: err?.message || 'Server xatosi' });
+  }
+};
+
+module.exports = { generateAudioCaptionHandler, getAudioCaptionHandler };

@@ -131,17 +131,9 @@ const getVariationLabel = (variations, code) => {
 };
 
 const buildAudioTemplate = (item) => {
-  const rawRegion = item?.region || item?.productOrder?.region || item?.productRegion || null;
-  const isMicroRegion = rawRegion?.regionType === 'MICRO_REGION';
-  const provinceName = isMicroRegion
-    ? rawRegion?.parent?.parent?.name || rawRegion?.parent?.name || ''
-    : rawRegion?.parent?.name || '';
-  const districtName = isMicroRegion
-    ? rawRegion?.parent?.name || ''
-    : rawRegion?.name || item?.district || '';
-  const mfyName = item?.mfy?.name || item?.productMfy?.name || (isMicroRegion ? rawRegion?.name : '');
-  const mfyWord = mfyName.trim().split(/\s+/)[0] || '';
+  const { provinceName, districtName, mfyName } = buildLocationParts(item);
   const variations = getVariations(item);
+  const apartment = isApartment(item);
   const categoryText = (() => {
     const map = { 19: 'noturar binoni', 8: 'kvartirani', 12: 'xususiy uyni' };
     const categoryId = item?.category?.id || item?.categoryId;
@@ -154,7 +146,9 @@ const buildAudioTemplate = (item) => {
   const buildingArea = formatRounded(
     getVariationValue(variations, 'building_width_area') ?? item?.buildingArea ?? item?.areaAll ?? item?.area
   );
-  const effectiveArea = formatRounded(getVariationValue(variations, 'area_effective') ?? item?.effectiveArea ?? item?.area_living);
+  let effectiveRaw = getVariationValue(variations, 'area_effective') ?? item?.effectiveArea ?? item?.area_living;
+  if (!effectiveRaw && apartment) effectiveRaw = areaAll;
+  const effectiveArea = formatRounded(effectiveRaw);
   const typeOfBuilding = (() => {
     const base =
       getVariationLabel(variations, 'type_of_building') || item?.typeOfBuildingLabel || item?.typeOfBuilding || item?.buildingType?.name;
@@ -179,11 +173,14 @@ const buildAudioTemplate = (item) => {
     return '';
   })();
 
-  const locationParts = [provinceName, districtName].filter(Boolean).filter((v, i, a) => i === 0 || v !== a[i - 1]);
+  const locationParts = [provinceName, districtName, mfyName]
+    .map((v) => String(v || '').trim())
+    .filter(Boolean)
+    .filter((v, i, a) => i === 0 || v !== a[i - 1]);
   const locationPrefix = normalizeSpaces(locationParts.join(' '));
   const sentences = [
     normalizeSpaces(
-      `${locationPrefix || ''} ${mfyWord ? `${mfyWord} mahallasida` : ''} joylashgan ${categoryText} taklif qilamiz.`
+      `${locationPrefix || ''}${locationPrefix ? ' ' : ''}mahallasida joylashgan ${categoryText} taklif qilamiz.`
     ),
     `Umumiy yer maydoni ${areaAll} metr kvadrat.`,
     `Qurilish osti maydoni ${buildingArea} metr kvadrat.`,
@@ -195,10 +192,7 @@ const buildAudioTemplate = (item) => {
     "Batafsil malumot uchun ellik besh besh yuz o'n yetti yigirma ikki yigirma raqamiga bog'laning!",
   ];
 
-  const categoryId = item?.category?.id || item?.categoryId;
-  const categoryName = item?.category?.name || item?.category || '';
-  const isApartment = Number(categoryId) === 8 || String(categoryName).toLowerCase().includes('kvartir');
-  if (isApartment) {
+  if (apartment) {
     const filtered = sentences.filter((line) => {
       const v = String(line || '');
       return !/^Umumiy yer maydoni\s+/i.test(v) && !/^Qurilish osti maydoni\s+/i.test(v);
@@ -209,17 +203,9 @@ const buildAudioTemplate = (item) => {
 };
 
 const buildAudioTemplateDigits = (item) => {
-  const rawRegion = item?.region || item?.productOrder?.region || item?.productRegion || null;
-  const isMicroRegion = rawRegion?.regionType === 'MICRO_REGION';
-  const provinceName = isMicroRegion
-    ? rawRegion?.parent?.parent?.name || rawRegion?.parent?.name || ''
-    : rawRegion?.parent?.name || '';
-  const districtName = isMicroRegion
-    ? rawRegion?.parent?.name || ''
-    : rawRegion?.name || item?.district || '';
-  const mfyName = item?.mfy?.name || item?.productMfy?.name || (isMicroRegion ? rawRegion?.name : '');
-  const mfyWord = mfyName.trim().split(/\s+/)[0] || '';
+  const { provinceName, districtName, mfyName } = buildLocationParts(item);
   const variations = getVariations(item);
+  const apartment = isApartment(item);
   const categoryText = (() => {
     const map = { 19: 'noturar binoni', 8: 'kvartirani', 12: 'xususiy uyni' };
     const categoryId = item?.category?.id || item?.categoryId;
@@ -232,7 +218,9 @@ const buildAudioTemplateDigits = (item) => {
   const buildingArea = formatRounded(
     getVariationValue(variations, 'building_width_area') ?? item?.buildingArea ?? item?.areaAll ?? item?.area
   );
-  const effectiveArea = formatRounded(getVariationValue(variations, 'area_effective') ?? item?.effectiveArea ?? item?.area_living);
+  let effectiveRaw = getVariationValue(variations, 'area_effective') ?? item?.effectiveArea ?? item?.area_living;
+  if (!effectiveRaw && apartment) effectiveRaw = areaAll;
+  const effectiveArea = formatRounded(effectiveRaw);
   const typeOfBuilding = (() => {
     const base =
       getVariationLabel(variations, 'type_of_building') || item?.typeOfBuildingLabel || item?.typeOfBuilding || item?.buildingType?.name;
@@ -257,11 +245,14 @@ const buildAudioTemplateDigits = (item) => {
     return '';
   })();
 
-  const locationParts = [provinceName, districtName].filter(Boolean).filter((v, i, a) => i === 0 || v !== a[i - 1]);
+  const locationParts = [provinceName, districtName, mfyName]
+    .map((v) => String(v || '').trim())
+    .filter(Boolean)
+    .filter((v, i, a) => i === 0 || v !== a[i - 1]);
   const locationPrefix = normalizeSpaces(locationParts.join(' '));
   const sentences = [
     normalizeSpaces(
-      `${locationPrefix || ''} ${mfyWord ? `${mfyWord} mahallasida` : ''} joylashgan ${categoryText} taklif qilamiz.`
+      `${locationPrefix || ''}${locationPrefix ? ' ' : ''}mahallasida joylashgan ${categoryText} taklif qilamiz.`
     ),
     `Umumiy yer maydoni ${areaAll} metr kvadrat.`,
     `Qurilish osti maydoni ${buildingArea} metr kvadrat.`,
@@ -273,10 +264,7 @@ const buildAudioTemplateDigits = (item) => {
     "Batafsil malumot uchun 55 517 22 20 raqamiga bog'laning!",
   ];
 
-  const categoryId = item?.category?.id || item?.categoryId;
-  const categoryName = item?.category?.name || item?.category || '';
-  const isApartment = Number(categoryId) === 8 || String(categoryName).toLowerCase().includes('kvartir');
-  if (isApartment) {
+  if (apartment) {
     const filtered = sentences.filter((line) => {
       const v = String(line || '');
       return !/^Umumiy yer maydoni\s+/i.test(v) && !/^Qurilish osti maydoni\s+/i.test(v);
@@ -285,5 +273,31 @@ const buildAudioTemplateDigits = (item) => {
   }
   return sentences.join(' ');
 };
+
+function isApartment(item) {
+  const categoryId = item?.category?.id || item?.categoryId;
+  const categoryName = item?.category?.name || item?.category || '';
+  return Number(categoryId) === 8 || String(categoryName).toLowerCase().includes('kvartir');
+}
+
+function buildLocationParts(item) {
+  const rawRegion = item?.region || item?.productOrder?.region || item?.productRegion || null;
+  const isMicroRegion = rawRegion?.regionType === 'MICRO_REGION';
+  const provinceName = isMicroRegion
+    ? rawRegion?.parent?.parent?.name || rawRegion?.parent?.name || ''
+    : rawRegion?.parent?.name || '';
+  const districtName = isMicroRegion
+    ? rawRegion?.parent?.name || ''
+    : rawRegion?.name || item?.district || '';
+  const rawMfy = item?.mfy?.name || item?.productMfy?.name || (isMicroRegion ? rawRegion?.name : '');
+  const mfyName = normalizeMfyName(rawMfy);
+  return { provinceName, districtName, mfyName };
+}
+
+function normalizeMfyName(value) {
+  const v = String(value || '').trim();
+  if (!v) return '';
+  return v.replace(/\bMFY\b/gi, '').replace(/\bmahalla(si)?\b/gi, '').trim();
+}
 
 module.exports = { buildAudioTemplate, buildAudioTemplateDigits };

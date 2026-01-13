@@ -23,4 +23,18 @@ const saveAudioCaptionFile = async ({ productId, srt }) => {
   };
 };
 
-module.exports = { saveAudioCaptionFile };
+const readAudioCaptionFile = async ({ productId }) => {
+  const safeId = String(productId).trim();
+  const fileName = `${safeId}_audioCaption.srt`;
+  const filePath = path.join(AUDIO_CAPTION_DIR, fileName);
+  const srt = await fs.readFile(filePath, 'utf8');
+
+  return {
+    fileName,
+    filePath,
+    fileUrl: `/files/audioCaption/${fileName}`,
+    srt,
+  };
+};
+
+module.exports = { saveAudioCaptionFile, readAudioCaptionFile };
