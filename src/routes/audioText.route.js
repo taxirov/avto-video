@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/generate/audio/text', generateAudioTextHandler);
 router.post('/generate/audio', generateAudioHandler);
 router.post('/generate/audio/caption', generateAudioCaptionHandler);
-router.get('/generate/audio/caption/:id', getAudioCaptionHandler);
+router.get('/audio/caption/:id', getAudioCaptionHandler);
 router.get('/audio/:id', getAudioHandler);
 router.get('/audio/text/:id', getAudioTextHandler);
 
